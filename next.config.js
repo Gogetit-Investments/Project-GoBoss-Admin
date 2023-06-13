@@ -23,7 +23,8 @@ const nextConfig = {
       'picsum.photos',
       'pixarlaravel.s3.ap-southeast-1.amazonaws.com',
       'lh3.googleusercontent.com',
-      'backend.goboss.com.ng'
+      'backend.goboss.com.ng',
+      'ng.jumia.is'
     ],
   },
   ...(process.env.APPLICATION_MODE === 'production' && {

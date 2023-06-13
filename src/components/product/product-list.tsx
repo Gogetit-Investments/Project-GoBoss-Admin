@@ -100,17 +100,17 @@ const ProductList = ({
       ellipsis: true,
       onHeaderCell: () => onHeaderClick('name'),
     },
-    {
-      title: t('table:table-item-group'),
-      dataIndex: 'type',
-      key: 'type',
-      width: 120,
-      align: 'center',
-      ellipsis: true,
-      render: (type: any) => (
-        <span className="truncate whitespace-nowrap">{type?.name}</span>
-      ),
-    },
+    // {
+    //   title: t('table:table-item-group'),
+    //   dataIndex: 'type',
+    //   key: 'type',
+    //   width: 120,
+    //   align: 'center',
+    //   ellipsis: true,
+    //   render: (type: any) => (
+    //     <span className="truncate whitespace-nowrap">{type?.name}</span>
+    //   ),
+    // },
     {
       title: t('table:table-item-shop'),
       dataIndex: 'shop',
