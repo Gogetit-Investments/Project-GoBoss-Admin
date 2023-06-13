@@ -11,6 +11,7 @@ const nextConfig = {
     dest: 'public',
     runtimeCaching,
   },
+  basePath: '/admin',
   images: {
     domains: [
       '139.59.176.153',
