@@ -33,16 +33,16 @@ const PopularProductList = ({ products, title }: IProps) => {
         <span className="whitespace-nowrap">{name}</span>
       ),
     },
-    {
-      title: t('table:table-item-group'),
-      dataIndex: 'type',
-      key: 'type',
-      align: 'center',
-      width: 120,
-      render: (type: any) => (
-        <span className="whitespace-nowrap">{type?.name}</span>
-      ),
-    },
+    // {
+    //   title: t('table:table-item-group'),
+    //   dataIndex: 'type',
+    //   key: 'type',
+    //   align: 'center',
+    //   width: 120,
+    //   render: (type: any) => (
+    //     <span className="whitespace-nowrap">{type?.name}</span>
+    //   ),
+    // },
 
     {
       title: t('table:table-item-shop'),
