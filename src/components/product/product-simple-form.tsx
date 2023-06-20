@@ -83,13 +83,13 @@ export default function ProductSimpleForm({ initialValues }: IProps) {
           disabled={isTranslateProduct}
         />
 
-        <Input
+        {/* <Input
           label={`${t('form:input-label-preview-url')}`}
           {...register('preview_url')}
           error={t(errors.preview_url?.message!)}
           variant="outline"
           className="mb-5"
-        />
+        /> */}
 
         {/* <Input
           label={t("form:input-label-width")}

@@ -16,19 +16,24 @@ const Logo: React.FC<React.AnchorHTMLAttributes<{}>> = ({
       {...props}
     >
       <span
-        className="relative overflow-hidden"
-        style={{
-          width: siteSettings.logo.width,
-          height: siteSettings.logo.height,
-        }}
-      >
+      
+      className="relative "
+      // className="relative overflow-hidden"
+      style={{
+        width: 270,
+        height: 60,
+        display: 'flex', alignItems: 'center', 
+      }}
+    >
         <Image
-          src = {'/image/logo.jpeg'}
+          src = {'/admin/image/logo.jpeg'}
           // src={logo?.original ?? siteSettings.logo.url}
           alt={siteTitle ?? siteSettings.logo.alt}
-          layout="fill"
+          layout="fixed"
           objectFit="contain"
           loading="eager"
+          width={150} // Set the desired width of the image
+          height={60}// Set the desired height of the image
         />
       </span>
     </Link>

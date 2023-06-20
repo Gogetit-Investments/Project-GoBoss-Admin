@@ -6,15 +6,15 @@ export const siteSettings = {
   description: '',
   logo: {
     url: '/logo.svg',
-    alt: 'GoBoss',
+    alt: 'GoBoss Admin Dashboard',
     href: '/',
     width: 128,
     height: 40,
   },
   defaultLanguage: 'en',
   author: {
-    name: 'RedQ, Inc.',
-    websiteUrl: 'https://redq.io',
+    name: 'GoBoss Ecommerce Platform',
+    websiteUrl: 'https://shop.goboss.com.ng',
     address: '',
   },
   headerLinks: [],
@@ -51,11 +51,11 @@ export const siteSettings = {
         label: 'sidebar-nav-item-products',
         icon: 'ProductsIcon',
       },
-      {
-        href: Routes.type.list,
-        label: 'sidebar-nav-item-groups',
-        icon: 'TypesIcon',
-      },
+      // {
+      //   href: Routes.type.list,
+      //   label: 'sidebar-nav-item-groups',
+      //   icon: 'TypesIcon',
+      // },
       {
         href: Routes.category.list,
         label: 'sidebar-nav-item-categories',
@@ -153,9 +153,10 @@ export const siteSettings = {
     ],
   },
   product: {
-    placeholder: '/product-placeholder.svg',
+    placeholder: '/admin/product-placeholder.svg',
   },
   avatar: {
-    placeholder: '/avatar-placeholder.svg',
+    // placeholder: '/avatar-placeholder.svg',
+    placeholder: '/admin/avatar-placeholder.svg',
   },
 };

@@ -18,7 +18,7 @@ const UserDetails: React.FC = () => {
     <div className="flex h-full flex-col items-center p-5">
       <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-gray-200">
         <Image
-          src={profile?.avatar?.thumbnail ?? '/avatar-placeholder.svg'}
+          src={profile?.avatar?.thumbnail ?? '/admin/avatar-placeholder.svg'}
           layout="fill"
           alt={name}
         />

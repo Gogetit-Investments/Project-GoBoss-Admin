@@ -6,6 +6,7 @@ import Link from '@/components/ui/link';
 import { siteSettings } from '@/settings/site.settings';
 import { useTranslation } from 'next-i18next';
 import { useMeQuery } from '@/data/user';
+import Image from 'next/image';
 
 export default function AuthorizedMenu() {
 	const { data } = useMeQuery();
@@ -17,11 +18,17 @@ export default function AuthorizedMenu() {
 			<Menu.Button className="flex items-center focus:outline-none">
 				<Avatar
 					src={
-						data?.profile?.avatar?.thumbnail ??
-						siteSettings?.avatar?.placeholder
+						// data?.profile?.avatar?.thumbnail ??
+						// siteSettings?.avatar?.placeholder ?? 
+						'/admin/avatar-placeholder.svg'
 					}
 					alt="avatar"
 				/>
+
+
+
+
+
 			</Menu.Button>
 
       <Transition

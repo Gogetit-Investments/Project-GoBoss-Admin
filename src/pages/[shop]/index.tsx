@@ -84,7 +84,7 @@ export default function ShopPage() {
           <div className="relative mb-5 h-36 w-36 rounded-full">
             <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full border border-gray-100">
               <Image
-                src={logo?.thumbnail ?? '/avatar-placeholder.svg'}
+                src={logo?.thumbnail ?? '/admin/avatar-placeholder.svg'}
                 layout="fill"
                 objectFit="contain"
                 alt={name}
@@ -146,7 +146,7 @@ export default function ShopPage() {
       {/* Cover Photo */}
       <div className="relative order-1 col-span-12 h-full min-h-[400px] overflow-hidden rounded bg-light xl:order-2 xl:col-span-8 3xl:col-span-9">
         <Image
-          src={cover_image?.original ?? '/product-placeholder-borderless.svg'}
+          src={cover_image?.original ?? '/admin/product-placeholder-borderless.svg'}
           layout="fill"
           objectFit="contain"
           alt={name}

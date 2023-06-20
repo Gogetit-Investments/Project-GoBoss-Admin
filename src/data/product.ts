@@ -23,6 +23,7 @@ export const useCreateProductMutation = () => {
       const generateRedirectUrl = router.query.shop
         ? `/${router.query.shop}${Routes.product.list}`
         : Routes.product.list;
+        console.log(generateRedirectUrl)
       await Router.push(generateRedirectUrl, undefined, {
         locale: Config.defaultLanguage,
       });
