@@ -126,7 +126,7 @@ import './reactImagesUpload.module.css';
         return;
       }
   
-      const response = await fetch('http://localhost:8000/products', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_REST_API_ENDPOINT}/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -135,6 +135,7 @@ import './reactImagesUpload.module.css';
         },
         body: JSON.stringify(formData),
       });
+      
       
   
       if (response.ok) {
