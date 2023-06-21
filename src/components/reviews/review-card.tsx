@@ -46,7 +46,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
           {photos?.map((photo: any, idx: any) => (
             <div className="mb-1" key={idx}>
               <Image
-                src={photo?.original ?? '/product-placeholder-borderless.svg'}
+                src={photo?.original ?? '/admin/product-placeholder-borderless.svg'}
                 width={32}
                 height={32}
                 className="inline-flex rounded-md bg-gray-200"

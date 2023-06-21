@@ -13,7 +13,7 @@ export const allowedRoles = [SUPER_ADMIN, STORE_OWNER, STAFF];
 export const adminAndOwnerOnly = [SUPER_ADMIN, STORE_OWNER];
 export const adminOwnerAndStaffOnly = [SUPER_ADMIN, STORE_OWNER, STAFF];
 export const adminOnly = [SUPER_ADMIN];
-export const ownerOnly = [STORE_OWNER];
+export const ownerOnly = [STORE_OWNER, SUPER_ADMIN];
 
 export function setAuthCredentials(token: string, permissions: any) {
   Cookie.set(AUTH_CRED, JSON.stringify({ token, permissions }));

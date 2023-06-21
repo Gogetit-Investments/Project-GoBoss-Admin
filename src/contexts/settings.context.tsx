@@ -4,7 +4,7 @@ export interface State {
 }
 
 const initialState = {
-  siteTitle: 'GoBoss',
+  siteTitle: 'GoBoss Admin and Vendor Dashboard',
   siteSubtitle: '',
   currency: 'NGN',
   logo: {

@@ -2,7 +2,7 @@ import { adminAndOwnerOnly, adminOwnerAndStaffOnly } from '@/utils/auth-utils';
 import { Routes } from '@/config/routes';
 
 export const siteSettings = {
-  name: 'GoBoss',
+  name: 'GoBoss Admin Dashboard',
   description: '',
   logo: {
     url: '/logo.svg',

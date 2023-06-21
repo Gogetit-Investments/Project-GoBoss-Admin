@@ -50,7 +50,7 @@ const DefaultSeo = () => {
         },
         {
           rel: 'manifest',
-          href: '/manifest.json',
+          href: '/admin/manifest.json',
         },
       ]}
     />

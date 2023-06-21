@@ -48,7 +48,7 @@ const RefundImageModal = () => {
               className="flex items-center justify-center selection:bg-transparent"
             >
               <Image
-                src={item?.original ?? '/product-placeholder-borderless.svg'}
+                src={item?.original ?? '/admin/product-placeholder-borderless.svg'}
                 alt={`Refund gallery ${item.id}`}
                 width={800}
                 height={800}

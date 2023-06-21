@@ -1,3 +1,7 @@
+import { useState, useEffect } from 'react';
+import cookies from 'js-cookie';
+
+import SelectInput from '@/components/ui/select-input';
 import Input from '@/components/ui/input';
 import TextArea from '@/components/ui/text-area';
 import { useForm, FormProvider } from 'react-hook-form';
@@ -21,7 +25,7 @@ import { useShopQuery } from '@/data/shop';
 import ProductTagInput from './product-tag-input';
 import { Config } from '@/config';
 import Alert from '@/components/ui/alert';
-import { useState } from 'react';
+// import { useState } from 'react';
 import ProductAuthorInput from './product-author-input';
 import ProductManufacturerInput from './product-manufacturer-input';
 import { EditIcon } from '@/components/icons/edit';
@@ -36,14 +40,24 @@ import {
   useUpdateProductMutation,
 } from '@/data/product';
 import { split, join } from 'lodash';
+import { useCategoriesQuery } from '@/data/category';
+import { Control, useFormState, useWatch } from 'react-hook-form';
+import React from 'react';
+import ImageUploader from 'react-images-upload';
+import './reactImagesUpload.module.css';
 
-type ProductFormProps = {
-  initialValues?: Product | null;
-};
 
-export default function CreateOrUpdateProductForm({
-  initialValues,
-}: ProductFormProps) {
+// const MyForm = () => {
+
+  const MyForm = () => {
+
+
+  const { locale } = useRouter();
+  const { categories, loading } = useCategoriesQuery({
+    limit: 999,
+    language: locale,
+  });
+
   const router = useRouter();
   const [isSlugDisable, setIsSlugDisable] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -56,236 +70,239 @@ export default function CreateOrUpdateProductForm({
     }
   );
 
-  const shopId = shopData?.id!;
-  const isNewTranslation = router?.query?.action === 'translate';
-  const isSlugEditable =
-    router?.query?.action === 'edit' &&
-    router?.locale === Config.defaultLanguage;
-  const methods = useForm<ProductFormValues>({
-    resolver: yupResolver(productValidationSchema),
-    shouldUnregister: true,
-    // @ts-ignore
-    defaultValues: getProductDefaultValues(initialValues!, isNewTranslation),
+  const shopId = shopData?.id!
+  console.log(shopData?.id)
+  const [formData, setFormData] = useState({
+    // shop_id: 9,
+    shop_id: shopId,
+    type_id: 1,
+    product_type: 'simple',
+    unit: '',
+    name: '',
+    price: '',
+    description: '',
+    slug: '',
+    quanity: '',
+    sale_price:'',
+    sku: '',
+    quantity: '',
+    image: []
   });
-  const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    setError,
-    watch,
-    formState: { errors },
-  } = methods;
 
-  const { mutate: createProduct, isLoading: creating } =
-    useCreateProductMutation();
-  const { mutate: updateProduct, isLoading: updating } =
-    useUpdateProductMutation();
+  // const handleChange = (e) => {
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  // };
 
-  const onSubmit = async (values: ProductFormValues) => {
-    const inputValues = {
-      language: router.locale,
-      ...getProductInputValues(values, initialValues, isNewTranslation),
-    };
 
-    try {
-      if (
-        !initialValues ||
-        !initialValues.translated_languages.includes(router.locale!)
-      ) {
-        //@ts-ignore
-        createProduct({
-          ...inputValues,
-          ...(initialValues?.slug && { slug: initialValues.slug }),
-          shop_id: shopId || initialValues?.shop_id,
-        });
-      } else {
-        //@ts-ignore
-        updateProduct({
-          ...inputValues,
-          id: initialValues.id!,
-          shop_id: initialValues.shop_id!,
-        });
-      }
-    } catch (error) {
-      const serverErrors = getErrorMessage(error);
-      Object.keys(serverErrors?.validation).forEach((field: any) => {
-        setError(field.split('.')[1], {
-          type: 'manual',
-          message: serverErrors?.validation[field][0],
-        });
-      });
+  const handleChange = (e) => {
+    if (e.target.name === 'image') {
+      setFormData({ ...formData, image: e.target.files });
+    } else {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
     }
   };
-  const product_type = watch('product_type');
-  const is_digital = watch('is_digital');
-  const is_external = watch('is_external');
-  const slugAutoSuggest = join(split(watch('name'), ' '), '-').toLowerCase();
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const authCredCookie = cookies.get('AUTH_CRED'); // Retrieve cookie value
+      if (!authCredCookie) {
+        // Handle case where cookie is not found
+        console.error('Cookie not found');
+        return;
+
+        
+      }
+  
+      const authCred = JSON.parse(authCredCookie); // Parse cookie value as JSON
+      const token = authCred.token; // Extract the token property
+      const permissions = authCred.permissions; // Extract the permissions property
+  
+      if (!token) {
+        // Handle case where token is not found in the cookie
+        console.error('Token not found in cookie');
+        return;
+      }
+  
+      const response = await fetch('http://localhost:8000/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Permissions: permissions.join(','),
+        },
+        body: JSON.stringify(formData),
+      });
+      
+  
+      if (response.ok) {
+        // Handle successful submission
+        console.log('Form submitted successfully');
+      } else {
+        // Handle error
+        console.error('Error submitting form');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const uploaderProps = {
+    name: 'image',
+    withPreview: true,
+    withIcon: false,
+    buttonText: 'Select images',
+    onChange: (pictures, pictureDataURLs) => {
+      setFormData({ ...formData, image: pictureDataURLs });
+    },
+    imgExtension: ['.jpg', '.gif', '.png', '.gif', 'jpeg'],
+    maxFileSize: 5242880,
+  };
+  
+  
   return (
-    <>
-      {errorMessage ? (
-        <Alert
-          message={t(`common:${errorMessage}`)}
-          variant="error"
-          closeable={true}
-          className="mt-5"
-          onClose={() => setErrorMessage(null)}
-        />
-      ) : null}
-      <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
-            <Description
-              title={t('form:featured-image-title')}
-              details={t('form:featured-image-help-text')}
-              className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-            />
+    // <FormProvider {...methods}>
+    <form onSubmit={handleSubmit}>
 
-            <Card className="w-full sm:w-8/12 md:w-2/3">
-              <FileInput name="image" control={control} multiple={false} />
-            </Card>
-          </div>
-
-          <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
-            <Description
-              title={t('form:gallery-title')}
-              details={t('form:gallery-help-text')}
-              className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-            />
-
-            <Card className="w-full sm:w-8/12 md:w-2/3">
-              <FileInput name="gallery" control={control} />
-            </Card>
-          </div>
-
-          <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
-            <Description
-              title={t('form:type-and-category')}
-              details={t('form:type-and-category-help-text')}
-              className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-            />
-
-            <Card className="w-full sm:w-8/12 md:w-2/3">
-              {/* <ProductGroupInput
-                control={control}
-                error={t((errors?.type as any)?.message)}
-              /> */}
-              <ProductCategoryInput control={control} setValue={setValue} />
-              {/* <ProductAuthorInput control={control} /> */}
-              {/* <ProductManufacturerInput control={control} setValue={setValue} /> */}
-              <ProductTagInput control={control} setValue={setValue} />
-            </Card>
-          </div>
-
-          <div className="my-5 flex flex-wrap sm:my-8">
+<div className="my-5 flex flex-wrap sm:my-8">
             <Description
               title={t('form:item-description')}
-              details={`${
-                initialValues
-                  ? t('form:item-description-edit')
-                  : t('form:item-description-add')
-              } ${t('form:product-description-help-text')}`}
+              details={t('form:product-description-help-text')}
               className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
             />
 
             <Card className="w-full sm:w-8/12 md:w-2/3">
               <Input
                 label={`${t('form:input-label-name')}*`}
-                {...register('name')}
-                error={t(errors.name?.message!)}
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
                 variant="outline"
                 className="mb-5"
               />
 
-              {isSlugEditable ? (
-                <div className="relative mb-5">
-                  <Input
-                    label={`${t('Slug')}`}
-                    {...register('slug')}
-                    error={t(errors.slug?.message!)}
-                    variant="outline"
-                    disabled={isSlugDisable}
-                  />
-                  <button
-                    className="absolute top-[27px] right-px z-10 flex h-[46px] w-11 items-center justify-center rounded-tr rounded-br border-l border-solid border-border-base bg-white px-2 text-body transition duration-200 hover:text-heading focus:outline-none"
-                    type="button"
-                    title={t('common:text-edit')}
-                    onClick={() => setIsSlugDisable(false)}
-                  >
-                    <EditIcon width={14} />
-                  </button>
-                </div>
-              ) : (
-                <Input
-                  label={`${t('Slug')}`}
-                  {...register('slug')}
-                  value={slugAutoSuggest}
-                  variant="outline"
-                  className="mb-5"
-                  disabled
-                />
-              )}
+          
+<TextArea
+                label={t('form:input-label-description')}
+                
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                variant="outline"
+                className="mb-5"
+              />
+              
               <Input
                 label={`${t('form:input-label-unit')}*`}
-                {...register('unit')}
-                error={t(errors.unit?.message!)}
+                type="text"
+                id="unit"
+                name="unit"
+                value={formData.unit}
+                onChange={handleChange}
                 variant="outline"
                 className="mb-5"
               />
 
-              <TextArea
-                label={t('form:input-label-description')}
-                {...register('description')}
-                error={t(errors.description?.message!)}
-                variant="outline"
-                className="mb-5"
-              />
-
-              <div>
-                <Label>{t('form:input-label-status')}</Label>
-                <Radio
-                  {...register('status')}
-                  label={t('form:input-label-published')}
-                  id="published"
-                  value="publish"
-                  className="mb-2"
-                />
-                <Radio
-                  {...register('status')}
-                  id="draft"
-                  label={t('form:input-label-draft')}
-                  value="draft"
-                />
-              </div>
             </Card>
           </div>
 
-          {/* <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
+
+
+
+
+          
+    <div className="my-5 flex flex-wrap sm:my-8">
+      <Description
+        title={t('form:form-title-simple-product-info')}
+        details={t('form:form-description-simple-product-info')}
+        className="sm:pe-4 md:pe-5 w-full px-0 pb-5 sm:w-4/12 sm:py-8 md:w-1/3"
+      />
+
+      <Card className="w-full sm:w-8/12 md:w-2/3">
+
+      <Input
+          label={t('form:input-label-sale-price')}
+          type="number"
+          id="sale_price"
+          name="sale_price"
+          value={formData.sale_price}
+          onChange={handleChange}
+          variant="outline"
+          className="mb-5"
+        />
+
+
+        <Input
+          label={`${t('form:input-label-price')}*`}
+          id="price"
+          name="price"
+          value={formData.price}
+          onChange={handleChange}
+          type="number"
+          // error={t(errors.price?.message!)}
+          variant="outline"
+          className="mb-5"
+        />
+
+
+        <Input
+          label={`${t('form:input-label-quantity')}*`}
+          type="number"
+          id="quantity"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+          variant="outline"
+          className="mb-5"
+          // Need discussion
+          // disabled={isTranslateProduct}
+        />
+
+        <Input
+          label={`${t('form:input-label-sku')}*`}
+          id="sku"
+          name="sku"
+          value={formData.sku}
+          onChange={handleChange}
+          variant="outline"
+          className="mb-5"
+          // disabled={isTranslateProduct}
+        />
+   </Card>
+    </div>
+
+
+    <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
             <Description
-              title={t('form:form-title-product-type')}
-              details={t('form:form-description-product-type')}
-              className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pr-4 md:w-1/3 md:pr-5"
+              title={t('form:featured-image-title')}
+              details={t('form:featured-image-help-text')}
+              className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
             />
 
-						<ProductTypeInput />
-					</div> */}
+            {/* <Card className="w-full sm:w-8/12 md:w-2/3">
+              <Label>{t('form:images-label')}</Label>
+        <ImageUploader {...uploaderProps} />
+            </Card> */}
 
-          <ProductSimpleForm initialValues={initialValues} />
+<div>
+  <Label>Upload Cover Image</Label>
+  <ImageUploader {...uploaderProps} />
+</div>
 
-          {/* Simple Type */}
-          {/* {product_type?.value === ProductType.Simple && (
-          )} */}
 
-          {/* Variation Type */}
-          {/* {product_type?.value === ProductType.Variable && (
-            <ProductVariableForm
-              shopId={shopId}
-              initialValues={initialValues}
-            />
-          )} */}
 
-          <div className="mb-4 text-end">
-            {initialValues && (
+
+          </div>
+
+    <div className="mb-4 text-end">
+            
               <Button
                 variant="outline"
                 onClick={router.back}
@@ -294,15 +311,15 @@ export default function CreateOrUpdateProductForm({
               >
                 {t('form:button-label-back')}
               </Button>
-            )}
-            <Button loading={updating || creating}>
-              {initialValues
-                ? t('form:button-label-update-product')
-                : t('form:button-label-add-product')}
+            
+            <Button >
+            {t('form:button-label-add-product')}
             </Button>
           </div>
-        </form>
-      </FormProvider>
-    </>
+  
+    </form>
+  
   );
-}
+};
+
+export default MyForm;

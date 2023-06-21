@@ -2,6 +2,7 @@
 const withPWA = require('next-pwa');
 const runtimeCaching = require('next-pwa/cache');
 const { i18n } = require('./next-i18next.config');
+const withTM = require('next-transpile-modules')(['react-images-upload']);
 
 const nextConfig = {
   reactStrictMode: true,
@@ -41,4 +42,4 @@ const nextConfig = {
   }),
 };
 
-module.exports = withPWA(nextConfig);
+module.exports = withPWA(withTM(nextConfig));

@@ -10,7 +10,7 @@ const AccessDeniedPage = () => {
       <div className="relative h-80 w-full sm:h-96 3xl:h-[580px]">
         <Image
           alt={t('text-access-denied')}
-          src="/access-denied.svg"
+          src="/admin/access-denied.svg"
           layout="fill"
         />
       </div>

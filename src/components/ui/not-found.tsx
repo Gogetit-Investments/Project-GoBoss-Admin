@@ -13,7 +13,7 @@ const NotFound: React.FC<Props> = ({ className, text }) => {
     <div className={cn('flex flex-col items-center', className)}>
       <div className="w-full h-full min-h-[380px] md:min-h-[450px] flex items-center justify-center relative">
         <Image
-          src="/no-result.svg"
+          src="/admin/no-result.svg"
           alt={text ? t(text) : t('text-no-result-found')}
           className="w-full h-full object-contain"
           layout="fill"
