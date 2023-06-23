@@ -24,12 +24,13 @@ const nextConfig = {
       'localhost',
       'localhost:8000',
       'localhost:3002/admin',
-      // '127.0.0.1:8000',
+      '127.0.0.1:3002/admin/uploads',
       'picsum.photos',
       'pixarlaravel.s3.ap-southeast-1.amazonaws.com',
       'lh3.googleusercontent.com',
       'backend.goboss.com.ng',
-      'ng.jumia.is'
+      'ng.jumia.is', 
+      'shop.goboss.com.ng/backend'
     ],
   },
   ...(process.env.APPLICATION_MODE === 'production' && {
@@ -40,6 +41,16 @@ const nextConfig = {
       ignoreDuringBuilds: true,
     },
   }),
+
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: '/uploads/:path*',
+      },
+    ];
+  },
+
 };
 
 module.exports = withPWA(withTM(nextConfig));

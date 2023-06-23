@@ -63,7 +63,7 @@ const ProductList = ({
       });
     },
   });
-
+  const src = 'http://localhost:8000/storage/npGNRbIprh.jpeg';
   let columns = [
     {
       title: t('table:table-item-image'),
@@ -73,9 +73,9 @@ const ProductList = ({
       width: 74,
       render: (image: any, { name }: { name: string }) => (
         <Image
-          src={image?.thumbnail ?? siteSettings.product.placeholder}
+          src={src}
+          // src={image?.thumbnail ?? siteSettings.product.placeholder}
           alt={name}
-          layout="fixed"
           width={42}
           height={42}
           className="overflow-hidden rounded"

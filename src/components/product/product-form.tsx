@@ -1,4 +1,10 @@
-import { useState, useEffect } from 'react';
+import {
+  useState,
+  useEffect,
+  ChangeEvent,
+  FormEvent,
+  ChangeEventHandler,
+} from 'react';
 import cookies from 'js-cookie';
 
 import SelectInput from '@/components/ui/select-input';
@@ -39,19 +45,16 @@ import {
   useCreateProductMutation,
   useUpdateProductMutation,
 } from '@/data/product';
-import { split, join } from 'lodash';
+import { split, join, forIn } from 'lodash';
 import { useCategoriesQuery } from '@/data/category';
 import { Control, useFormState, useWatch } from 'react-hook-form';
 import React from 'react';
 import ImageUploader from 'react-images-upload';
 import './reactImagesUpload.module.css';
 
-
 // const MyForm = () => {
 
-  const MyForm = () => {
-
-
+const MyForm = () => {
   const { locale } = useRouter();
   const { categories, loading } = useCategoriesQuery({
     limit: 999,
@@ -70,9 +73,22 @@ import './reactImagesUpload.module.css';
     }
   );
 
-  const shopId = shopData?.id!
-  console.log(shopData?.id)
-  const [formData, setFormData] = useState({
+  const shopId = shopData?.id!;
+  const [formData, setFormData] = useState<{
+    shop_id: string;
+    type_id: number;
+    product_type: 'simple';
+    unit: string;
+    name: string;
+    price: string;
+    description: string;
+    // slug: string;
+    quanity: string;
+    sale_price: string;
+    // sku: string;
+    quantity: string;
+    image?: string;
+  }>({
     // shop_id: 9,
     shop_id: shopId,
     type_id: 1,
@@ -81,245 +97,231 @@ import './reactImagesUpload.module.css';
     name: '',
     price: '',
     description: '',
-    slug: '',
+    // slug: '',
     quanity: '',
-    sale_price:'',
-    sku: '',
+    sale_price: '',
+    // sku: '',
     quantity: '',
-    image: []
+    image: {},
   });
 
-  // const handleChange = (e) => {
-  //   setFormData({ ...formData, [e.target.name]: e.target.value });
-  // };
-
-
-  const handleChange = (e) => {
-    if (e.target.name === 'image') {
-      setFormData({ ...formData, image: e.target.files });
-    } else {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
-    }
+  const toBase64 = async (file: File) =>
+    new Promise(
+      (resolve: (value: string | ArrayBuffer | null) => void, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+      }
+    );
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
   };
 
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
+
     try {
-      const authCredCookie = cookies.get('AUTH_CRED'); // Retrieve cookie value
+      const authCredCookie = cookies.get('AUTH_CRED');
       if (!authCredCookie) {
-        // Handle case where cookie is not found
         console.error('Cookie not found');
         return;
-
-        
       }
-  
-      const authCred = JSON.parse(authCredCookie); // Parse cookie value as JSON
-      const token = authCred.token; // Extract the token property
-      const permissions = authCred.permissions; // Extract the permissions property
-  
+
+      const authCred = JSON.parse(authCredCookie);
+      const token = authCred.token;
+      const permissions = authCred.permissions;
+
       if (!token) {
-        // Handle case where token is not found in the cookie
         console.error('Token not found in cookie');
         return;
       }
-  
-      const response = await fetch(`${process.env.NEXT_PUBLIC_REST_API_ENDPOINT}/products`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          Permissions: permissions.join(','),
-        },
-        body: JSON.stringify(formData),
-      });
-      
-      
-  
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_REST_API_ENDPOINT}/products`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            Permissions: permissions.join(','),
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
       if (response.ok) {
-        // Handle successful submission
         console.log('Form submitted successfully');
       } else {
-        // Handle error
         console.error('Error submitting form');
       }
     } catch (error) {
       console.error('Error:', error);
     }
   };
-  
 
   const [uploadedImages, setUploadedImages] = useState([]);
   const uploaderProps = {
     name: 'image',
     withPreview: true,
     withIcon: false,
-    buttonText: 'Select images',
-    onChange: (pictures, pictureDataURLs) => {
-      setFormData({ ...formData, image: pictureDataURLs });
+    buttonText: 'Select image',
+    singleImage: true,
+    onChange: async (files: File[], pictures: string[]) => {
+      const file = files.at(0);
+      // no file was selected
+      if (!file) return;
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () =>
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          image: reader.result?.toString(), // Update the image property with the pictureData object
+        }));
     },
     imgExtension: ['.jpg', '.gif', '.png', '.gif', 'jpeg'],
     maxFileSize: 5242880,
   };
-  
-  
+
   return (
     // <FormProvider {...methods}>
     <form onSubmit={handleSubmit}>
-
-<div className="my-5 flex flex-wrap sm:my-8">
-            <Description
-              title={t('form:item-description')}
-              details={t('form:product-description-help-text')}
-              className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-            />
-
-            <Card className="w-full sm:w-8/12 md:w-2/3">
-              <Input
-                label={`${t('form:input-label-name')}*`}
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                variant="outline"
-                className="mb-5"
-              />
-
-          
-<TextArea
-                label={t('form:input-label-description')}
-                
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                variant="outline"
-                className="mb-5"
-              />
-              
-              <Input
-                label={`${t('form:input-label-unit')}*`}
-                type="text"
-                id="unit"
-                name="unit"
-                value={formData.unit}
-                onChange={handleChange}
-                variant="outline"
-                className="mb-5"
-              />
-
-            </Card>
-          </div>
-
-
-
-
-
-          
-    <div className="my-5 flex flex-wrap sm:my-8">
-      <Description
-        title={t('form:form-title-simple-product-info')}
-        details={t('form:form-description-simple-product-info')}
-        className="sm:pe-4 md:pe-5 w-full px-0 pb-5 sm:w-4/12 sm:py-8 md:w-1/3"
-      />
-
-      <Card className="w-full sm:w-8/12 md:w-2/3">
-
-      <Input
-          label={t('form:input-label-sale-price')}
-          type="number"
-          id="sale_price"
-          name="sale_price"
-          value={formData.sale_price}
-          onChange={handleChange}
-          variant="outline"
-          className="mb-5"
+      <div className="my-5 flex flex-wrap sm:my-8">
+        <Description
+          title={t('form:item-description')}
+          details={t('form:product-description-help-text')}
+          className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
         />
 
+        <Card className="w-full sm:w-8/12 md:w-2/3">
+          <Input
+            label={`${t('form:input-label-name')}*`}
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            variant="outline"
+            className="mb-5"
+          />
 
-        <Input
-          label={`${t('form:input-label-price')}*`}
-          id="price"
-          name="price"
-          value={formData.price}
-          onChange={handleChange}
-          type="number"
-          // error={t(errors.price?.message!)}
-          variant="outline"
-          className="mb-5"
+          <TextArea
+            label={t('form:input-label-description')}
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            variant="outline"
+            className="mb-5"
+          />
+
+          <Input
+            label={`${t('form:input-label-unit')}*`}
+            type="text"
+            id="unit"
+            name="unit"
+            value={formData.unit}
+            onChange={handleChange}
+            variant="outline"
+            className="mb-5"
+          />
+        </Card>
+      </div>
+
+      <div className="my-5 flex flex-wrap sm:my-8">
+        <Description
+          title={t('form:form-title-simple-product-info')}
+          details={t('form:form-description-simple-product-info')}
+          className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
         />
 
+        <Card className="w-full sm:w-8/12 md:w-2/3">
+          <Input
+            label={t('form:input-label-sale-price')}
+            type="number"
+            id="sale_price"
+            name="sale_price"
+            value={formData.sale_price}
+            onChange={handleChange}
+            variant="outline"
+            className="mb-5"
+          />
 
-        <Input
-          label={`${t('form:input-label-quantity')}*`}
-          type="number"
-          id="quantity"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-          variant="outline"
-          className="mb-5"
-          // Need discussion
-          // disabled={isTranslateProduct}
+          <Input
+            label={`${t('form:input-label-price')}*`}
+            id="price"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            type="number"
+            // error={t(errors.price?.message!)}
+            variant="outline"
+            className="mb-5"
+          />
+
+          <Input
+            label={`${t('form:input-label-quantity')}*`}
+            type="number"
+            id="quantity"
+            name="quantity"
+            value={formData.quantity}
+            onChange={handleChange}
+            variant="outline"
+            className="mb-5"
+            // Need discussion
+            // disabled={isTranslateProduct}
+          />
+
+          {/* <Input
+            label={`${t('form:input-label-sku')}*`}
+            id="sku"
+            name="sku"
+            value={formData.sku}
+            onChange={handleChange}
+            variant="outline"
+            className="mb-5"
+            // disabled={isTranslateProduct}
+          /> */}
+        </Card>
+      </div>
+
+      <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
+        <Description
+          title={t('form:featured-image-title')}
+          details={t('form:featured-image-help-text')}
+          className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
         />
 
-        <Input
-          label={`${t('form:input-label-sku')}*`}
-          id="sku"
-          name="sku"
-          value={formData.sku}
-          onChange={handleChange}
-          variant="outline"
-          className="mb-5"
-          // disabled={isTranslateProduct}
-        />
-   </Card>
-    </div>
-
-
-    <div className="my-5 flex flex-wrap border-b border-dashed border-border-base pb-8 sm:my-8">
-            <Description
-              title={t('form:featured-image-title')}
-              details={t('form:featured-image-help-text')}
-              className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
-            />
-
-            {/* <Card className="w-full sm:w-8/12 md:w-2/3">
+        {/* <Card className="w-full sm:w-8/12 md:w-2/3">
               <Label>{t('form:images-label')}</Label>
         <ImageUploader {...uploaderProps} />
             </Card> */}
 
-<div>
-  <Label>Upload Cover Image</Label>
-  <ImageUploader {...uploaderProps} />
-</div>
+        <div>
+          <Label>Upload Cover Image</Label>
+          <ImageUploader {...uploaderProps} />
+        </div>
+      </div>
 
+      <div className="mb-4 text-end">
+        <Button
+          variant="outline"
+          onClick={router.back}
+          className="me-4"
+          type="button"
+        >
+          {t('form:button-label-back')}
+        </Button>
 
-
-
-          </div>
-
-    <div className="mb-4 text-end">
-            
-              <Button
-                variant="outline"
-                onClick={router.back}
-                className="me-4"
-                type="button"
-              >
-                {t('form:button-label-back')}
-              </Button>
-            
-            <Button >
-            {t('form:button-label-add-product')}
-            </Button>
-          </div>
-  
+        <Button>{t('form:button-label-add-product')}</Button>
+      </div>
     </form>
-  
   );
 };
 
