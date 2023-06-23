@@ -63,7 +63,7 @@ const ProductList = ({
       });
     },
   });
-  const src = 'http://localhost:8000/storage/npGNRbIprh.jpeg';
+  const src = 'http://localhost:8000/uploads/nZSW6vz1fP.jpeg';
   let columns = [
     {
       title: t('table:table-item-image'),
@@ -73,8 +73,8 @@ const ProductList = ({
       width: 74,
       render: (image: any, { name }: { name: string }) => (
         <Image
-          src={src}
-          // src={image?.thumbnail ?? siteSettings.product.placeholder}
+          // src={src}
+          src={image?.thumbnail ?? siteSettings.product.placeholder}
           alt={name}
           width={42}
           height={42}
