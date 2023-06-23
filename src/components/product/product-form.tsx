@@ -6,6 +6,7 @@ import {
   ChangeEventHandler,
 } from 'react';
 import cookies from 'js-cookie';
+import { toast } from 'react-toastify';
 
 import SelectInput from '@/components/ui/select-input';
 import Input from '@/components/ui/input';
@@ -31,7 +32,6 @@ import { useShopQuery } from '@/data/shop';
 import ProductTagInput from './product-tag-input';
 import { Config } from '@/config';
 import Alert from '@/components/ui/alert';
-// import { useState } from 'react';
 import ProductAuthorInput from './product-author-input';
 import ProductManufacturerInput from './product-manufacturer-input';
 import { EditIcon } from '@/components/icons/edit';
@@ -51,10 +51,11 @@ import { Control, useFormState, useWatch } from 'react-hook-form';
 import React from 'react';
 import ImageUploader from 'react-images-upload';
 import './reactImagesUpload.module.css';
-
-// const MyForm = () => {
+import 'react-toastify/dist/ReactToastify.css';
 
 const MyForm = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const { locale } = useRouter();
   const { categories, loading } = useCategoriesQuery({
     limit: 999,
@@ -82,14 +83,11 @@ const MyForm = () => {
     name: string;
     price: string;
     description: string;
-    // slug: string;
     quanity: string;
     sale_price: string;
-    // sku: string;
     quantity: string;
     image?: string;
   }>({
-    // shop_id: 9,
     shop_id: shopId,
     type_id: 1,
     product_type: 'simple',
@@ -97,10 +95,8 @@ const MyForm = () => {
     name: '',
     price: '',
     description: '',
-    // slug: '',
     quanity: '',
     sale_price: '',
-    // sku: '',
     quantity: '',
     image: {},
   });
@@ -114,6 +110,7 @@ const MyForm = () => {
         reader.onerror = reject;
       }
     );
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -126,6 +123,7 @@ const MyForm = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       const authCredCookie = cookies.get('AUTH_CRED');
@@ -157,12 +155,25 @@ const MyForm = () => {
       );
 
       if (response.ok) {
-        console.log('Form submitted successfully');
+        toast.success('Product added successfully');
+        setFormData({
+          ...formData,
+          name: '',
+          description: '',
+          unit: '',
+          price: '',
+          quantity: '',
+          sale_price: '',
+          image: {},
+        });
       } else {
-        console.error('Error submitting form');
+        toast.error('Error submitting form');
       }
     } catch (error) {
       console.error('Error:', error);
+      toast.error('Error submitting form');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -182,7 +193,7 @@ const MyForm = () => {
       reader.onload = () =>
         setFormData((prevFormData) => ({
           ...prevFormData,
-          image: reader.result?.toString(), // Update the image property with the pictureData object
+          image: reader.result?.toString(),
         }));
     },
     imgExtension: ['.jpg', '.gif', '.png', '.gif', 'jpeg'],
@@ -190,7 +201,6 @@ const MyForm = () => {
   };
 
   return (
-    // <FormProvider {...methods}>
     <form onSubmit={handleSubmit}>
       <div className="my-5 flex flex-wrap sm:my-8">
         <Description
@@ -260,7 +270,6 @@ const MyForm = () => {
             value={formData.price}
             onChange={handleChange}
             type="number"
-            // error={t(errors.price?.message!)}
             variant="outline"
             className="mb-5"
           />
@@ -274,20 +283,7 @@ const MyForm = () => {
             onChange={handleChange}
             variant="outline"
             className="mb-5"
-            // Need discussion
-            // disabled={isTranslateProduct}
           />
-
-          {/* <Input
-            label={`${t('form:input-label-sku')}*`}
-            id="sku"
-            name="sku"
-            value={formData.sku}
-            onChange={handleChange}
-            variant="outline"
-            className="mb-5"
-            // disabled={isTranslateProduct}
-          /> */}
         </Card>
       </div>
 
@@ -297,11 +293,6 @@ const MyForm = () => {
           details={t('form:featured-image-help-text')}
           className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
         />
-
-        {/* <Card className="w-full sm:w-8/12 md:w-2/3">
-              <Label>{t('form:images-label')}</Label>
-        <ImageUploader {...uploaderProps} />
-            </Card> */}
 
         <div>
           <Label>Upload Cover Image</Label>
@@ -319,7 +310,11 @@ const MyForm = () => {
           {t('form:button-label-back')}
         </Button>
 
-        <Button>{t('form:button-label-add-product')}</Button>
+        <Button disabled={isSubmitting}>
+          {isSubmitting
+            ? t('form:button-label-submitting')
+            : t('form:button-label-add-product')}
+        </Button>
       </div>
     </form>
   );
