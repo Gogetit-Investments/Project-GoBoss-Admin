@@ -19,7 +19,6 @@ import Label from '@/components/ui/label';
 import Radio from '@/components/ui/radio/radio';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
-
 import FileInput from '@/components/ui/file-input';
 import { productValidationSchema } from './product-validation-schema';
 import ProductVariableForm from './product-variable-form';
@@ -76,7 +75,6 @@ const MyForm = () => {
   );
 
   const shopId = shopData?.id!;
-  console.log(shopId)
   const [formData, setFormData] = useState<{
     shop_id: string;
     type_id: number;
@@ -120,46 +118,55 @@ const MyForm = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
-      shop_id: shopId,
     }));
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-  
+
     try {
       const authCredCookie = cookies.get('AUTH_CRED');
       if (!authCredCookie) {
         console.error('Cookie not found');
         return;
       }
-  
+
       const authCred = JSON.parse(authCredCookie);
       const token = authCred.token;
       const permissions = authCred.permissions;
-  
+
       if (!token) {
         console.error('Token not found in cookie');
         return;
       }
-  
-      const formData = new FormData(e.target as HTMLFormElement);
-      formData.append('image', e.target.image.files[0]);
-      formData.append('shop_id', shopId);
-      const response = await fetch(`https://s3uploads.shop.goboss.com.ng`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Permissions: permissions.join(','),
-        },
-        body: formData,
-      });
-  
+
+      const response = await fetch(
+        `http://localhost:8001/api/upload_image`,
+        // `${process.env.NEXT_PUBLIC_REST_API_ENDPOINT}/products`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            Permissions: permissions.join(','),
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
       if (response.ok) {
         toast.success('Product added successfully');
-        // Reset form values
-        e.target.reset();
+        setFormData({
+          ...formData,
+          name: '',
+          description: '',
+          unit: '',
+          price: '',
+          quantity: '',
+          sale_price: '',
+          image: {},
+        });
       } else {
         toast.error('Error submitting form');
       }
@@ -170,12 +177,9 @@ const MyForm = () => {
       setIsSubmitting(false);
     }
   };
-  
-  
 
   const [uploadedImages, setUploadedImages] = useState([]);
   const uploaderProps = {
-    required: true,
     name: 'image',
     withPreview: true,
     withIcon: false,
@@ -216,7 +220,6 @@ const MyForm = () => {
             onChange={handleChange}
             variant="outline"
             className="mb-5"
-            required
           />
 
           <TextArea
@@ -227,7 +230,6 @@ const MyForm = () => {
             onChange={handleChange}
             variant="outline"
             className="mb-5"
-            required
           />
 
           <Input
@@ -239,7 +241,6 @@ const MyForm = () => {
             onChange={handleChange}
             variant="outline"
             className="mb-5"
-            required
           />
         </Card>
       </div>
@@ -261,7 +262,6 @@ const MyForm = () => {
             onChange={handleChange}
             variant="outline"
             className="mb-5"
-            required
           />
 
           <Input
@@ -273,7 +273,6 @@ const MyForm = () => {
             type="number"
             variant="outline"
             className="mb-5"
-            required
           />
 
           <Input
@@ -285,7 +284,6 @@ const MyForm = () => {
             onChange={handleChange}
             variant="outline"
             className="mb-5"
-            required
           />
         </Card>
       </div>

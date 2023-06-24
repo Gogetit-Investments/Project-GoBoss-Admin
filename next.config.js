@@ -30,7 +30,8 @@ const nextConfig = {
       'lh3.googleusercontent.com',
       'backend.goboss.com.ng',
       'ng.jumia.is', 
-      'shop.goboss.com.ng'
+      'shop.goboss.com.ng',
+      'goboss.s3.amazonaws.com'
     ],
   },
   ...(process.env.APPLICATION_MODE === 'production' && {

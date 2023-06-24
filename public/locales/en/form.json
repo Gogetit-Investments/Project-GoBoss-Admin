@@ -124,6 +124,7 @@
   "button-label-update-product": "Update Product",
   "button-label-add-product": "Add Product",
   "button-label-submitting": "Submitting...",
+  "input-label-product-name": "Product Name",
   "input-placeholder-search": "Type your query and press enter",
   "input-placeholder-order-status": "Order status",
   "button-label-remove": "Remove",
