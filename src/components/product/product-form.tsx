@@ -76,6 +76,7 @@ const MyForm = () => {
   );
 
   const shopId = shopData?.id!;
+  const slugId = shopData?.slug;
   console.log(shopId)
   const [formData, setFormData] = useState<{
     shop_id: string;
@@ -147,7 +148,7 @@ const MyForm = () => {
       const formData = new FormData(e.target as HTMLFormElement);
       formData.append('image', e.target.image.files[0]);
       formData.append('shop_id', shopId);
-      const response = await fetch(`https://s3uploads.shop.goboss.com.ng`, {
+      const response = await fetch(`https://goboss.com.ng/s3uploads/public/api/upload_image`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -157,6 +158,7 @@ const MyForm = () => {
       });
   
       if (response.ok) {
+        router.push(`/${slugId}/products`);
         toast.success('Product added successfully');
         // Reset form values
         e.target.reset();
