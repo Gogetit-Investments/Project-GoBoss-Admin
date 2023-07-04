@@ -54,14 +54,23 @@ import ImageUploader from 'react-images-upload';
 import './reactImagesUpload.module.css';
 import 'react-toastify/dist/ReactToastify.css';
 
+// const categories = [
+//   { id: 1, name: "Category 1" },
+//   { id: 2, name: "Category 2" },
+//   { id: 3, name: "Category 3" }
+// ];
+
+
+const loading = false;
+
 const MyForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { locale } = useRouter();
-  const { categories, loading } = useCategoriesQuery({
-    limit: 999,
-    language: locale,
-  });
+  // const { categories, loading } = useCategoriesQuery({
+  //   limit: 999,
+  //   language: locale,
+  // });
 
   const router = useRouter();
   const [isSlugDisable, setIsSlugDisable] = useState<boolean>(true);
@@ -89,6 +98,7 @@ const MyForm = () => {
     quanity: string;
     sale_price: string;
     quantity: string;
+    category: string;
     image?: string;
   }>({
     shop_id: shopId,
@@ -101,6 +111,7 @@ const MyForm = () => {
     quanity: '',
     sale_price: '',
     quantity: '',
+    category:'',
     image: {},
   });
 
@@ -198,8 +209,30 @@ const MyForm = () => {
     imgExtension: ['.jpg', '.gif', '.png', '.gif', 'jpeg'],
     maxFileSize: 5242880,
   };
+  const methods = useForm();
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    // Fetch categories from API endpoint
+    fetch('http://localhost:8000/product_categories')
+      .then(response => response.json())
+      .then(data => {
+        setCategories(data);
+      })
+      .catch(error => {
+        console.error('Error fetching categories:', error);
+      });
+  }, []);
+
+  const categoryOptions = categories.map(category => ({
+    label: category.name,
+    value: category.id.toString()
+  }));
 
   return (
+<FormProvider {...methods}>
+    
     <form onSubmit={handleSubmit}>
       <div className="my-5 flex flex-wrap sm:my-8">
         <Description
@@ -231,6 +264,15 @@ const MyForm = () => {
             className="mb-5"
             required
           />
+<label className="block text-body-dark font-semibold text-sm leading-none mb-3">Product Category</label>
+<SelectInput
+  label="Product Category"
+  name="category"
+  options={categoryOptions}
+  control={methods.control}
+  rules={{ required: true }}
+  className="mb-5"
+/><br/>
 
           <Input
             label={`${t('form:input-label-unit')}*`}
@@ -322,6 +364,7 @@ const MyForm = () => {
         </Button>
       </div>
     </form>
+    </FormProvider>
   );
 };
 

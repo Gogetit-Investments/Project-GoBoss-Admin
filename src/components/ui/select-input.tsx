@@ -18,6 +18,7 @@ interface SelectInputProps {
 
 const SelectInput = ({
   control,
+  label,
   options,
   name,
   rules,
