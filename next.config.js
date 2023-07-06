@@ -31,7 +31,7 @@ const nextConfig = {
       'backend.goboss.com.ng',
       'ng.jumia.is', 
       'shop.goboss.com.ng',
-      'goboss.s3.amazonaws.com'
+      'goboss-ng.s3.amazonaws.com'
     ],
   },
   ...(process.env.APPLICATION_MODE === 'production' && {

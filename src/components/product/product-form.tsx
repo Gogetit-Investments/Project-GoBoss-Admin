@@ -100,6 +100,7 @@ const MyForm = () => {
     quantity: string;
     category: string;
     image?: string;
+    gallery?: string;
   }>({
     shop_id: shopId,
     type_id: 1,
@@ -113,6 +114,7 @@ const MyForm = () => {
     quantity: '',
     category:'',
     image: {},
+    gallery: {},
   });
 
   const toBase64 = async (file: File) =>
@@ -158,6 +160,11 @@ const MyForm = () => {
   
       const formData = new FormData(e.target as HTMLFormElement);
       formData.append('image', e.target.image.files[0]);
+      
+      galleryImages.forEach((file) => {
+        formData.append('gallery[]', file);
+      });
+
       formData.append('shop_id', shopId);
       const response = await fetch(`https://goboss.com.ng/s3uploads/public/api/upload_image`, {
         method: 'POST',
@@ -209,13 +216,28 @@ const MyForm = () => {
     imgExtension: ['.jpg', '.gif', '.png', '.gif', 'jpeg'],
     maxFileSize: 5242880,
   };
+  const [galleryImages, setGalleryImages] = useState([]);
+const galleryUploaderProps = {
+  required: true,
+  name: 'gallery',
+  withPreview: true,
+  withIcon: false,
+  buttonText: 'Select images',
+  singleImage: false, // Allow multiple image selections
+  onChange: (files, pictures) => {
+    setGalleryImages(files);
+  },
+  imgExtension: ['.jpg', '.gif', '.png', '.gif', 'jpeg'],
+  maxFileSize: 5242880,
+};
+
   const methods = useForm();
 
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     // Fetch categories from API endpoint
-    fetch('http://localhost:8000/product_categories')
+    fetch('https://localhost:8000/product_categories')
       .then(response => response.json())
       .then(data => {
         setCategories(data);
@@ -340,13 +362,24 @@ const MyForm = () => {
           details={t('form:featured-image-help-text')}
           className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
         />
+     
+       
+      <Card className="w-full sm:w-8/12 md:w-2/3">
 
-        <div>
+      <div>
           <Label>Upload Cover Image</Label>
           <ImageUploader {...uploaderProps} />
         </div>
-      </div>
 
+
+      <div>
+          <Label>Upload Gallery Images</Label>
+          <ImageUploader {...galleryUploaderProps} />
+        </div>
+     
+</Card>
+      </div>
+ 
       <div className="mb-4 text-end">
         <Button
           variant="outline"
