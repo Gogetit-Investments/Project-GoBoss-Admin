@@ -61,7 +61,7 @@ const ProductList = ({
           sortingObj.sort === SortOrder.Desc ? SortOrder.Asc : SortOrder.Desc,
         column: column,
       });
-    },
+    }, 
   });
   const src = 'http://localhost:8000/uploads/nZSW6vz1fP.jpeg';
   let columns = [

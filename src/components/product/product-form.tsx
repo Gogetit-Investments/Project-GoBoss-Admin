@@ -101,6 +101,7 @@ const MyForm = () => {
     category: string;
     image?: string;
     gallery?: string;
+    category_id: string;
   }>({
     shop_id: shopId,
     type_id: 1,
@@ -115,6 +116,7 @@ const MyForm = () => {
     category:'',
     image: {},
     gallery: {},
+    category_id: ''
   });
 
   const toBase64 = async (file: File) =>
@@ -166,7 +168,8 @@ const MyForm = () => {
       });
 
       formData.append('shop_id', shopId);
-      const response = await fetch(`https://goboss.com.ng/s3uploads/public/api/upload_image`, {
+      // const response = await fetch(`http://localhost:8001/api/upload_image`, {
+        const response = await fetch(`https://goboss.com.ng/s3uploads/public/api/upload_image`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -237,7 +240,7 @@ const galleryUploaderProps = {
 
   useEffect(() => {
     // Fetch categories from API endpoint
-    fetch('https://localhost:8000/product_categories')
+    fetch(`${process.env.NEXT_PUBLIC_REST_API_ENDPOINT}/product_categories`)
       .then(response => response.json())
       .then(data => {
         setCategories(data);
@@ -246,6 +249,8 @@ const galleryUploaderProps = {
         console.error('Error fetching categories:', error);
       });
   }, []);
+  
+  
 
   const categoryOptions = categories.map(category => ({
     label: category.name,
@@ -289,10 +294,11 @@ const galleryUploaderProps = {
 <label className="block text-body-dark font-semibold text-sm leading-none mb-3">Product Category</label>
 <SelectInput
   label="Product Category"
-  name="category"
+  name="category_id"
   options={categoryOptions}
   control={methods.control}
   rules={{ required: true }}
+  value={formData.category_id}
   className="mb-5"
 /><br/>
 
